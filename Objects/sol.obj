@@ -1,0 +1,12 @@
+# Blender v2.70 (sub 0) OBJ File: 'sol.blend'
+# www.blender.org
+mtllib sol.mtl
+o Plane
+v 6.855814 0.000000 -6.855814
+v -6.855814 0.000000 -6.855814
+v 6.855814 0.000000 6.855814
+v -6.855814 0.000000 6.855814
+usemtl None
+s off
+f 2 4 3
+f 1 2 3
