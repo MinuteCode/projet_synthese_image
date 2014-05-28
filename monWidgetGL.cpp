@@ -88,7 +88,7 @@ void monWidgetGL::initializeGL()
     std::cout<<"taille du vecteur faces : "<<robot.getVecteurFaces().size()<<std::endl;
     std::cout<<"taille du vecteur normales : "<<robot.getVecteurNormales().size()<<std::endl;
 
-    sol.load_obj("Objects/sol.obj");
+    sol.load_obj("Objects/sol2.obj");
 
     glClearColor(0.3,0.3,0.3, 0.0);
     glEnable(GL_DEPTH_TEST);
