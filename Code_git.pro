@@ -5,7 +5,7 @@
 TEMPLATE = app
 TARGET = Code_git
 INCLUDEPATH += .
-
+QT+= core gui opengl
 # Input
 HEADERS += glutils.hpp \
            maFenetre.hpp \
@@ -21,3 +21,11 @@ SOURCES += glutils.cpp \
            objet.cpp \
            vec3.cpp \
            vec4.cpp
+
+LIBS+= -lGLEW -lGLU -lGL
+
+OTHER_FILES += \
+    Objects/Cube_normals_no_plan.obj \
+    Objects/Robot_normals_no_plan.obj \
+    Objects/sol.obj \
+    Objects/sol2.obj

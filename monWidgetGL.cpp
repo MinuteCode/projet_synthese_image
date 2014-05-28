@@ -81,13 +81,14 @@ void monWidgetGL::initializeGL()
     std::cout<<"Initialisation timer"<<std::endl;
     connect(&timer, SIGNAL(timeout()), this, SLOT(update_timer()));
     timer.start(16);
+    std::cout<<"Timer initialisé"<<std::endl;
 
     robot.load_obj("Objects/Robot_normals_no_plan.obj");
     std::cout<<"taille du vecteur sommets : "<<robot.getVecteurSommets().size()<<std::endl;
     std::cout<<"taille du vecteur faces : "<<robot.getVecteurFaces().size()<<std::endl;
     std::cout<<"taille du vecteur normales : "<<robot.getVecteurNormales().size()<<std::endl;
 
-    sol.load_obj("Objects/sol2.obj");
+    sol.load_obj("Objects/sol.obj");
 
     glClearColor(0.3,0.3,0.3, 0.0);
     glEnable(GL_DEPTH_TEST);
