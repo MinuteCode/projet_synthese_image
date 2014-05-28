@@ -84,7 +84,6 @@ void Objet::load_obj(std::string nomFichier)
 
             // Ajout des indices à la liste d'indices
             std::stringstream sstream(line.substr(2));
-            std::cout<<line.substr(2)<<std::endl;
             if(normal)
             {
                 GLushort a,b,c,n1,n2,n3;
@@ -94,13 +93,6 @@ void Objet::load_obj(std::string nomFichier)
                 sstream>>n2;
                 sstream>>c;
                 sstream>>n3;
-                std::cout<<"DECOUPAGE SSTREAM"<<std::endl;
-                std::cout<<"a: "<<a<<std::endl;
-                std::cout<<"n1: "<<n1<<std::endl;
-                std::cout<<"b: "<<b<<std::endl;
-                std::cout<<"n2: "<<n2<<std::endl;
-                std::cout<<"c: "<<c<<std::endl;
-                std::cout<<"n3: "<<n3<<std::endl;
                 vecteur_face.push_back(--a);vecteur_face.push_back(--b);vecteur_face.push_back(--c);// dans le point obj commence à 1 ici à 0
             }
             else

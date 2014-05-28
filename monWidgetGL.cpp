@@ -46,7 +46,7 @@ vec3 POI(x_translate,y_translate,z_translate+2.0f);
 
 bool left_button=false;
 bool right_button=false;
-int rotation=0;
+int is_ground=0;
 
 
 float time1=0.0f;
@@ -199,9 +199,10 @@ void monWidgetGL::paintGL()
     /*glEnableClientState(GL_NORMAL_ARRAY); PRINT_OPENGL_ERROR();
     glNormalPointer(GL_UNSIGNED_INT, 0, robot.getVecteurNormales().size()); PRINT_OPENGL_ERROR();*/
 
+
     glUniform1f(get_uni_loc(shader_program_id,"Angle"),Angle);
     glUniform3f(get_uni_loc(shader_program_id,"translation"),translation.x,translation.y,translation.z);
-    //glUniform1i(get_uni_loc(shader_program_id,"rotation"),rotation);
+    glUniform1i(get_uni_loc(shader_program_id,"is_ground"),1);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,ibo);
     glDrawElements(GL_TRIANGLES,robot.getVecteurFaces().size(),GL_UNSIGNED_SHORT,0);
@@ -215,8 +216,12 @@ void monWidgetGL::paintGL()
     glEnableClientState(GL_VERTEX_ARRAY); PRINT_OPENGL_ERROR();
     glVertexPointer(3, GL_FLOAT, 0, 0); PRINT_OPENGL_ERROR();
 
+
     glUniform1f(get_uni_loc(shader_program_id,"Angle"),0*M_PI/180); //RAZ rotation pour que le sol reste immobile
     glUniform3f(get_uni_loc(shader_program_id,"translation"),0.0,0.0,0.0);
+    glUniform1i(get_uni_loc(shader_program_id,"is_ground"),1);
+    //glUniform3f(get_uni_loc(shader_program_id,"color"),0.0,50.0,0.0);
+
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,ibo2);
     glDrawElements(GL_TRIANGLES,sol.getVecteurFaces().size(),GL_UNSIGNED_SHORT,0);
@@ -228,8 +233,21 @@ void monWidgetGL::paintGL()
     glEnableClientState(GL_VERTEX_ARRAY); PRINT_OPENGL_ERROR();
     glVertexPointer(3, GL_FLOAT, 0, 0); PRINT_OPENGL_ERROR();
 
-    glUniform1f(get_uni_loc(shader_program_id,"Angle"),0*M_PI/180); //RAZ rotation pour que le sol reste immobile
+    if(std::sqrt(std::pow(pos_robot.x-5,2)+std::pow(pos_robot.z-7,2))<2)
+    {
+        glUniform1f(get_uni_loc(shader_program_id,"Angle"),0*M_PI/180); //RAZ rotation pour que le cylindre reste immobile
+        glUniform3f(get_uni_loc(shader_program_id,"translation"),translation.x+1.7,0.0,translation.z+1.7);
+        glUniform1i(get_uni_loc(shader_program_id,"is_ground"),0);
+        glUniform3f(get_uni_loc(shader_program_id,"color"),0.52,0.32,0.06);
+    }
+    else
+    {
+    glUniform1f(get_uni_loc(shader_program_id,"Angle"),0*M_PI/180); //RAZ rotation pour que le cylindre reste immobile
     glUniform3f(get_uni_loc(shader_program_id,"translation"),5.0,0.0,7.0);
+    glUniform1i(get_uni_loc(shader_program_id,"is_ground"),0);
+    glUniform3f(get_uni_loc(shader_program_id,"color"),0.52,0.32,0.06);
+    }
+
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,ibo3);
     glDrawElements(GL_TRIANGLES,cylindre.getVecteurFaces().size(),GL_UNSIGNED_SHORT,0);
@@ -310,7 +328,7 @@ void monWidgetGL::keyPressEvent(QKeyEvent* event)
                 pos_robot.x=0.0f;
                 pos_robot.z=0.0f;
             }
-            else if(std::sqrt(std::pow(pos_robot.x-5,2)+std::pow(pos_robot.z-7,2))<2.5)
+            /*else if(std::sqrt(std::pow(pos_robot.x-5,2)+std::pow(pos_robot.z-7,2))<2.5)
             {
                 QMessageBox* messageBox=new QMessageBox(this);
                 messageBox->setText("Une collision avec le cylindre a ete detectee");
@@ -321,14 +339,13 @@ void monWidgetGL::keyPressEvent(QKeyEvent* event)
                 pos_robot.z=0.0f;
             }
             else
-            {
+            {*/
                 translation.z+=0.03*sin(Angle);
                 translation.x+=0.03*cos(Angle);
                 pos_robot.x+=0.03*cos(Angle);
                 pos_robot.z+=0.03*sin(Angle);
-            }
+            //}
         }
-        std::cout<<pos_robot.x<<","<<pos_robot.z<<std::endl;
         break;
 
     case Qt::Key_S:
@@ -356,7 +373,6 @@ void monWidgetGL::keyPressEvent(QKeyEvent* event)
                 pos_robot.z-=0.03*sin(Angle);
             }
         }
-        std::cout<<pos_robot.x<<","<<pos_robot.z<<std::endl;
         break;
 
     case Qt::Key_Plus:

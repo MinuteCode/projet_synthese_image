@@ -2,7 +2,6 @@
 
 varying vec4 vertex_3d_original;
 varying vec4 vertex_3d_modelview;
-varying vec3 vertex_color;
 
 varying vec4 position;
 
@@ -25,7 +24,7 @@ void main (void)
     position += vec4(translation.x,translation.y,translation.z,0.0f);
 
     //Projection du sommet
-    vertex_color=gl_Vertex.xyz;
+    //vertex_color=gl_Vertex.xyz;
     vertex_3d_original=gl_Vertex;
     vertex_3d_modelview=gl_ModelViewMatrix*gl_Vertex;
     gl_Position = gl_ProjectionMatrix*gl_ModelViewMatrix*position;
