@@ -15,15 +15,14 @@
 #include <QWheelEvent>
 #include <QMouseEvent>
 #include <QDebug>
-
+#include <QMessageBox>
 
 struct DirectionalLight{
     vec3 color;
     float AmbientIntensity;
 };
 
-Objet robot;
-Objet sol;
+Objet robot,sol,cylindre;
 
 DirectionalLight dirLight;
 
@@ -52,6 +51,7 @@ int rotation=0;
 
 float time1=0.0f;
 vec3 translation(0.3f,0.0f,0.0f);
+vec3 pos_robot;
 
 //identifiant du shsader
 GLuint shader_program_id;
@@ -88,7 +88,23 @@ void monWidgetGL::initializeGL()
     std::cout<<"taille du vecteur faces : "<<robot.getVecteurFaces().size()<<std::endl;
     std::cout<<"taille du vecteur normales : "<<robot.getVecteurNormales().size()<<std::endl;
 
+    for(unsigned int i=0;i<robot.getVecteurSommets().size();i++)
+    {
+        pos_robot.x+=robot.getVecteurSommets().at(i).x;
+        pos_robot.y+=robot.getVecteurSommets().at(i).y;
+        pos_robot.z+=robot.getVecteurSommets().at(i).z;
+    }
+    pos_robot.x/=robot.getVecteurSommets().size();
+    pos_robot.y/=robot.getVecteurSommets().size();
+    pos_robot.z/=robot.getVecteurSommets().size();
+
     sol.load_obj("Objects/sol2.obj");
+    cylindre.load_obj("Objects/cylindre.obj");
+
+    for(unsigned int i=0;i<sol.getVecteurSommets().size();i++)
+    {
+        sol.getVecteurSommets().at(i)*=5.0f;
+    }
 
     glClearColor(0.3,0.3,0.3, 0.0);
     glEnable(GL_DEPTH_TEST);
@@ -128,6 +144,23 @@ void monWidgetGL::initializeGL()
     glGenBuffers(1,&ibo2); PRINT_OPENGL_ERROR();
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,ibo2);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER,sizeof(GLushort)*sol.getVecteurFaces().size(),sol.getVecteurFaces().data(),GL_STATIC_DRAW);
+
+    /*******************************************************************/
+    /*              Création vertex buffer object Cylindre             */
+    /*******************************************************************/
+    glGenBuffers(1,&vbo3); PRINT_OPENGL_ERROR();
+    //affectation du buffer courant
+    glBindBuffer(GL_ARRAY_BUFFER,vbo3); PRINT_OPENGL_ERROR();
+    //copie des donnees des sommets sur la carte graphique
+    glBufferData(GL_ARRAY_BUFFER,sizeof(vec3)*cylindre.getVecteurSommets().size(),cylindre.getVecteurSommets().data(),GL_STATIC_DRAW); PRINT_OPENGL_ERROR();
+    PRINT_OPENGL_ERROR();
+
+    /*******************************************************************/
+    /*              Création index buffer object Cylindre              */
+    /*******************************************************************/
+    glGenBuffers(1,&ibo3); PRINT_OPENGL_ERROR();
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,ibo3);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER,sizeof(GLushort)*cylindre.getVecteurFaces().size(),cylindre.getVecteurFaces().data(),GL_STATIC_DRAW);
 
     // Chargement du shader
     shader_program_id = read_shader("shader.vert", "shader.frag");PRINT_OPENGL_ERROR();
@@ -188,6 +221,19 @@ void monWidgetGL::paintGL()
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,ibo2);
     glDrawElements(GL_TRIANGLES,sol.getVecteurFaces().size(),GL_UNSIGNED_SHORT,0);
 
+    /*******************************************************************/
+    /*                       Affichage cylindre                        */
+    /*******************************************************************/
+    glBindBuffer(GL_ARRAY_BUFFER,vbo3); PRINT_OPENGL_ERROR();
+    glEnableClientState(GL_VERTEX_ARRAY); PRINT_OPENGL_ERROR();
+    glVertexPointer(3, GL_FLOAT, 0, 0); PRINT_OPENGL_ERROR();
+
+    glUniform1f(get_uni_loc(shader_program_id,"Angle"),0*M_PI/180); //RAZ rotation pour que le sol reste immobile
+    glUniform3f(get_uni_loc(shader_program_id,"translation"),5.0,0.0,7.0);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,ibo3);
+    glDrawElements(GL_TRIANGLES,cylindre.getVecteurFaces().size(),GL_UNSIGNED_SHORT,0);
+
 }
 
 void monWidgetGL::resizeGL()
@@ -231,11 +277,11 @@ void monWidgetGL::keyPressEvent(QKeyEvent* event)
         POI.y+=3.0f;
         break;
 
-    case Qt::Key_Right:
+    case Qt::Key_D:
         Angle+=0.1;
         break;
 
-    case Qt::Key_Left:
+    case Qt::Key_Q:
         Angle-=0.1;
         break;
 
@@ -251,16 +297,68 @@ void monWidgetGL::keyPressEvent(QKeyEvent* event)
 //****************************************************************//
 
     case Qt::Key_Z:
-        std::cout<<"avant collision"<<std::endl;
-        translation.z+=0.3*sin(Angle);
-        translation.x+=0.3*cos(Angle);
-        detection_collision();
-        std::cout<<"après collision"<<std::endl;
+        for( unsigned int i=0;i<sol.getVecteurSommets().size();i++)
+        {
+            if(pos_robot.x>=25 || pos_robot.x<-16 || pos_robot.z>20 || pos_robot.z<-20)
+            {
+                std::cout<<"collision"<<std::endl;
+                QMessageBox* messageBox=new QMessageBox(this);
+                messageBox->setText("Une collision a ete detectee");
+                messageBox->exec();
+                translation.x=0.0f;
+                translation.z=0.0f;
+                pos_robot.x=0.0f;
+                pos_robot.z=0.0f;
+            }
+            else if(std::sqrt(std::pow(pos_robot.x-5,2)+std::pow(pos_robot.z-7,2))<2.5)
+            {
+                QMessageBox* messageBox=new QMessageBox(this);
+                messageBox->setText("Une collision avec le cylindre a ete detectee");
+                messageBox->exec();
+                translation.x=0.0f;
+                translation.z=0.0f;
+                pos_robot.x=0.0f;
+                pos_robot.z=0.0f;
+            }
+            else
+            {
+                translation.z+=0.03*sin(Angle);
+                translation.x+=0.03*cos(Angle);
+                pos_robot.x+=0.03*cos(Angle);
+                pos_robot.z+=0.03*sin(Angle);
+            }
+        }
+        std::cout<<pos_robot.x<<","<<pos_robot.z<<std::endl;
         break;
+
     case Qt::Key_S:
-        translation.z-=0.3*sin(Angle);
-        translation.x-=0.3*cos(Angle);
+        for( unsigned int i=0;i<sol.getVecteurSommets().size();i++)
+        {
+            if(pos_robot.x>=25 || pos_robot.x<-16 || pos_robot.z>20 || pos_robot.z<-20)
+            {
+                std::cout<<"collision"<<std::endl;
+            }
+            else if(std::sqrt(std::pow(pos_robot.x-5,2)+std::pow(pos_robot.z-7,2))<2.5)
+            {
+                QMessageBox* messageBox=new QMessageBox(this);
+                messageBox->setText("Une collision avec le cylindre a ete detectee");
+                messageBox->exec();
+                translation.x=0.0f;
+                translation.z=0.0f;
+                pos_robot.x=0.0f;
+                pos_robot.z=0.0f;
+            }
+            else
+            {
+                translation.z-=0.03*sin(Angle);
+                translation.x-=0.03*cos(Angle);
+                pos_robot.x-=0.03*cos(Angle);
+                pos_robot.z-=0.03*sin(Angle);
+            }
+        }
+        std::cout<<pos_robot.x<<","<<pos_robot.z<<std::endl;
         break;
+
     case Qt::Key_Plus:
         m_dirLightAmbient+=0.5f;
         break;
@@ -332,7 +430,7 @@ void monWidgetGL::detection_collision()
         {
             if(std::abs(robot.getVecteurSommets().at(i).x-sol.getVecteurSommets().at(j).x)<0.1)
             {
-                //std::cout<<"collision"<<std::endl;
+                std::cout<<std::abs(robot.getVecteurSommets().at(i).x-sol.getVecteurSommets().at(j).x)<<std::endl;
                 exit(0);
             }
         }

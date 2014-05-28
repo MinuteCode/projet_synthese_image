@@ -28,4 +28,6 @@ OTHER_FILES += \
     Objects/Cube_normals_no_plan.obj \
     Objects/Robot_normals_no_plan.obj \
     Objects/sol.obj \
-    Objects/sol2.obj
+    Objects/sol2.obj \
+    shader.frag \
+    shader.vert

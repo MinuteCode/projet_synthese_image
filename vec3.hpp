@@ -9,6 +9,7 @@ struct vec3
 
   vec3 crossproduct(vec3& v);
   vec3 operator-(vec3& v2);
+  vec3& operator*=(float s);
   float x,y,z;
 };
 

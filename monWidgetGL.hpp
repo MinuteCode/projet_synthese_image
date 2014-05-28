@@ -40,8 +40,10 @@ private:
     GLuint shader_program_id;
     GLuint vbo;
     GLuint vbo2;
+    GLuint vbo3;
     GLuint ibo;
     GLuint ibo2;
+    GLuint ibo3;
     GLuint nbo;
     QTimer timer;
 

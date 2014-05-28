@@ -7,7 +7,7 @@ Objet::Objet()
 }
 
 
-std::vector<vec3> Objet::getVecteurSommets() const
+std::vector<vec3>& Objet::getVecteurSommets()
 {
     return vecteur_sommet;
 }

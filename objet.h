@@ -24,7 +24,7 @@ private:
 
 public:
     Objet();
-    std::vector<vec3> getVecteurSommets() const;
+    std::vector<vec3>& getVecteurSommets();
     std::vector<GLushort> getVecteurFaces() const;
     std::vector<vec3> getVecteurNormales() const;
 

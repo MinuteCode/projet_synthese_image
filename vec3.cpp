@@ -25,3 +25,9 @@ vec3 vec3::operator-(vec3& v2)
     z-=v2.z;
     return *this;
 }
+
+vec3& vec3::operator*=(float s)
+{
+    x*=s; z*=s;
+    return *this;
+}

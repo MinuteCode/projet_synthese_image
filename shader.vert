@@ -24,11 +24,6 @@ void main (void)
     position*=RotationMatrix;
     position += vec4(translation.x,translation.y,translation.z,0.0f);
 
-
-    /*mat4 TranslationMatrix = mat4(1.0,0.0,0.0,translation.x,
-                                  0.0,1.0,0.0,translation.y,
-                                  0.0,0.0,1.0,translation.z,
-                                  0.0,0.0,0.0,1.0);*/
     //Projection du sommet
     vertex_color=gl_Vertex.xyz;
     vertex_3d_original=gl_Vertex;
